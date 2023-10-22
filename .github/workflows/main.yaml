@@ -1,0 +1,83 @@
+name: TerraForm Workflow
+run-name: ${{ github.actor }} is running Workflow
+on:
+  push:
+    branches:
+      - development
+      - uat
+      - production
+  pull_request:
+    branches:
+      - development
+      - uat
+      - production
+
+jobs:
+  run_validation_and_deploy:
+    if: github.event.pull_request.merged == true || ${{ github.event_name }} == 'push'
+    name: Run Linters on Codebase
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Terraform binary and app dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+          wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          gpg --no-default-keyring --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg --fingerprint
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt update
+          sudo apt-get install terraform
+          curl -L "$(curl -s https://api.github.com/repos/tenable/terrascan/releases/latest | grep -o -E "https://.+?_Darwin_x86_64.tar.gz")" > terrascan.tar.gz
+          tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz
+          install terrascan /usr/local/bin && rm terrascan
+
+          wget -O https://go.dev/dl/go1.21.3.linux-amd64.tar.gz
+          rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.21.3.linux-amd64.tar.gz
+          export PATH=$PATH:/usr/local/go/bin
+
+      - name: Lint Terraform code
+        run: |
+          cd setup
+          terraform init
+          terraform fmt -check -recursive .
+          terraform validate
+                
+      - name: Perform security vulnerability scan
+        run: |
+          terrascan scan --severity high
+          a=$(echo $?)
+          if [[ $a == 4 ]]; then echo "passed"; else echo "failed"; fi
+      
+      - name: Run tests
+        run: |
+          cd ../tests
+          go mod download
+          CGO_ENABLED=0 go build
+          go test
+      
+      - name: Extract Environment from Branch Name
+        shell: bash
+        run: echo "environment=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_environment
+
+      - name: Deploy terraform code
+        run: |
+          export TF_VAR‍_environment=${{ steps.extract_environment.outputs.environment }}
+          echo About to provision resources on $TF_VAR‍_environment environment
+          echo #################################################################
+          echo Preview Resources to be Deployed
+          echo #################################################################
+          terraform plan
+          echo #################################################################
+          echo Start Deployment
+          echo #################################################################
+          cd ../setup; terraform apply -auto-approve
+          
+
+          
+        
+        
