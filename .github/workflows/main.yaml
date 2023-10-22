@@ -51,6 +51,7 @@ jobs:
                 
       - name: Perform security vulnerability scan
         run: |
+          ls -la
           terrascan scan --iac-type terraform --severity high
       
       - name: Extract Environment from Branch Name
