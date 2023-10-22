@@ -72,7 +72,7 @@ jobs:
 
       - name: Deploy terraform code
         run: |
-          echo git hub version ${{ env.TF_VAR‍_environment }}
+          echo local env $TF_VAR‍_environment
           echo About to provision resources on $TF_VAR‍_environment environment
           echo #################################################################
           echo Preview Resources to be Deployed
