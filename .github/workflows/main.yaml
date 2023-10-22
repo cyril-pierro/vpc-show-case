@@ -35,6 +35,9 @@ jobs:
           rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.21.3.linux-amd64.tar.gz
           export PATH=$PATH:/usr/local/go/bin
 
+          curl -L "$(curl -s https://api.github.com/repos/tenable/terrascan/releases/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz
+          tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz
+          sudo install terrascan /usr/local/bin && rm terrascan
 
       - name: Lint Terraform code
         run: |
@@ -48,10 +51,7 @@ jobs:
                 
       - name: Perform security vulnerability scan
         run: |
-          curl -L "$(curl -s https://api.github.com/repos/tenable/terrascan/releases/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz
-          tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz
-          sudo install terrascan /usr/local/bin && rm terrascan
-          terrascan scan --severity high
+          terrascan scan --iac-type terraform --severity high
           a=$(echo $?)
           if [[ $a == 4 ]]; then echo "passed"; else echo "failed"; fi
       
