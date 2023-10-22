@@ -63,8 +63,9 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          export TF_VAR‍_environment=${{ steps.extract_environment.outputs.environment }}
-          echo $TF_VAR‍_environment
+          echo "TF_VAR‍_environment=${{ steps.extract_environment.outputs.environment }}" >> $GITHUB_ENV
+          echo git hub version ${{ env.TF_VAR‍_environment }}
+          echo local env $TF_VAR‍_environment
           cd tests
           go mod download
           CGO_ENABLED=0 go build
