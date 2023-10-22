@@ -52,14 +52,13 @@ jobs:
       - name: Perform security vulnerability scan
         run: |
           terrascan scan --iac-type terraform --severity high
-          a=$(echo $?)
-          if [[ $a == 4 ]]; then echo "passed"; else echo "failed"; fi
       
       - name: Extract Environment from Branch Name
         shell: bash
         run: |
           echo "environment=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
           export TF_VAR‍_environment=${{ steps.extract_environment.outputs.environment }} 
+          echo $TF_VAR_environment is activated
         id: extract_environment
 
       - name: Run tests
