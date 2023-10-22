@@ -58,6 +58,8 @@ jobs:
         shell: bash
         run: |
           echo "environment=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+          export TF_VAR‍_environment=$GITHUB_OUTPUT
+          echo $TF_VAR‍_environment
         id: extract_environment
 
       - name: Run tests
