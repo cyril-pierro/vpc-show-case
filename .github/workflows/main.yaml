@@ -62,7 +62,7 @@ jobs:
 
       - name: Run tests
         run: |
-          export TF_VAR‍_environment='${{ steps.extract_environment.outputs.environment }}' 
+          TF_VAR‍_environment=${{ steps.extract_environment.outputs.environment }}
           echo $TF_VAR‍_environment
           cd tests
           go mod download
@@ -75,11 +75,12 @@ jobs:
           echo #################################################################
           echo Preview Resources to be Deployed
           echo #################################################################
+          cd setup
           terraform plan
           echo #################################################################
           echo Start Deployment
           echo #################################################################
-          cd ../setup; terraform apply -auto-approve
+          terraform apply -auto-approve
           
 
           
