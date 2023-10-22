@@ -51,7 +51,7 @@ jobs:
                 
       - name: Perform security vulnerability scan
         run: |
-          ls -la
+          cd setup
           terrascan scan --iac-type terraform --severity high
       
       - name: Extract Environment from Branch Name
@@ -64,7 +64,7 @@ jobs:
 
       - name: Run tests
         run: |
-          cd ../tests
+          cd tests
           go mod download
           CGO_ENABLED=0 go build
           go test
