@@ -1,9 +1,9 @@
-resource "aws_flow_log" "example" {
-  iam_role_arn    = "arn"
-  log_destination = "log"
+resource "aws_flow_log" "flow_log" {
+  log_destination = aws_vpc.main.arn
   traffic_type    = "ALL"
   vpc_id          = aws_vpc.main.id
 }
+
 
 resource "aws_vpc" "main" {
   cidr_block           = var.cidr_block
