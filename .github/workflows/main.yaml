@@ -17,6 +17,9 @@ jobs:
     if: github.event.pull_request.merged == true || ${{ github.event_name }} == 'push'
     name: Set Up, Configure and Deploy Resources
     runs-on: "ubuntu-latest"
+    env: 
+      TF_VAR‍_environment: ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -54,18 +57,16 @@ jobs:
           cd setup
           terrascan scan --iac-type terraform --severity high
       
-      - name: Extract Environment from Branch Name
-        shell: bash
-        run: |
-          echo "environment=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_environment
+      # - name: Extract Environment from Branch Name
+      #   shell: bash
+      #   run: |
+      #     echo "environment=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+      #   id: extract_environment
 
       - name: Run tests
-        env: 
-          TF_VAR‍_environment: ${{ steps.extract_environment.outputs.environment }}
         run: |
           echo local env $TF_VAR‍_environment
-          cd tests
+          cd test
           go mod download
           CGO_ENABLED=0 go build
           go test
