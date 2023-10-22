@@ -58,12 +58,11 @@ jobs:
         shell: bash
         run: |
           echo "environment=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-          echo $environment is activated
         id: extract_environment
 
       - name: Run tests
         run: |
-          export TF_VAR‍_environment=${{ steps.extract_environment.outputs.environment }} 
+          export TF_VAR‍_environment='${{ steps.extract_environment.outputs.environment }}' 
           echo $TF_VAR‍_environment
           cd tests
           go mod download
