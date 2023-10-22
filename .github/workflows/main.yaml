@@ -63,7 +63,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          TF_VAR‍_environment=${{ steps.extract_environment.outputs.environment }}
+          export TF_VAR‍_environment=${{ steps.extract_environment.outputs.environment }}
           echo $TF_VAR‍_environment
           cd tests
           go mod download
