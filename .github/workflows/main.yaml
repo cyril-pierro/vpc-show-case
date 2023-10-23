@@ -70,18 +70,14 @@ jobs:
           TF_VAR‍_environment: "${{ steps.extract_environment.outputs.environment }}"
 
         run: |
-          echo variables list
-          env
-          # cd test
-          # go mod download
+          cd test
+          go mod download
           # CGO_ENABLED=0 go build
           # go test
 
       - name: Deploy terraform code
         run: |
-          echo $AWS_ACCESS_KEY_ID
-          echo $AWS_SECRET_ACCESS_KEY
-          echo About to provision resources on $TF_VAR‍_environment environment
+          echo About to provision resources on ${{ steps.extract_environment.outputs.environment }} environment
           echo #################################################################
           # echo Preview Resources to be Deployed
           # echo #################################################################
