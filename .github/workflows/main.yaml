@@ -70,7 +70,7 @@ jobs:
           TF_VAR‍_environment: "${{ steps.extract_environment.outputs.environment }}"
 
         run: |
-          echo ${{ env.TF_VAR‍_environment }}
+          echo ${{ TF_VAR‍_environment }}
           env
           # cd test
           # go mod download
