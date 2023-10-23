@@ -68,7 +68,6 @@ jobs:
       - name: Setup Go 1.21.x
         uses: actions/setup-go@v4
         with:
-          # Semantic version range syntax or exact version of Go
           go-version: '1.21.x'
 
       - name: Install dependencies
@@ -82,8 +81,9 @@ jobs:
 
         run: |
           cd test
+          go mod download
           CGO_ENABLED=0 go build
-          # go test
+          go test
 
       - name: Deploy terraform code
         run: |
