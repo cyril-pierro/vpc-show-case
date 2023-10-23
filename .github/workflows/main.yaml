@@ -81,8 +81,7 @@ jobs:
 
         run: |
           cd test
-          go mod download
-          CGO_ENABLED=0 go build
+          go build -v ./...
           go test
 
       - name: Deploy terraform code
