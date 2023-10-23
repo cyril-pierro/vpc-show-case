@@ -31,14 +31,8 @@ jobs:
       - name: Install and Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
-      - name: Install Terraform binary and app dependencies
+      - name: Install Terrascan binaries
         run: |
-          # sudo apt update && sudo apt upgrade -y
-          # sudo apt install -y curl software-properties-common
-          # wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-          # echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-          # sudo apt update && sudo apt install terraform 
-
           curl -L "$(curl -s https://api.github.com/repos/tenable/terrascan/releases/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz
           tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz
           sudo install terrascan /usr/local/bin && rm terrascan
@@ -83,7 +77,7 @@ jobs:
           go build -v ./...
           go test
 
-      - name: Deploy terraform code
+      - name: Deploy Resources
         run: |
           echo About to provision resources on ${{ steps.extract_environment.outputs.environment }} environment
           echo #################################################################
