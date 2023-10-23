@@ -12,70 +12,83 @@ on:
       - staging
       - prod
 
+env:
+  AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+  AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+  AWS_DEFAULT_REGION: "${{ secrets.AWS_DEFAULT_REGION }}"
+
 jobs:
   run_validation_and_deploy:
     if: github.event.pull_request.merged == true || ${{ github.event_name }} == 'push'
-    name: Run Linters on Codebase
+    name: Set Up, Configure and Deploy Resources
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Install Terraform binary and app dependencies
-        run: |
-          sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
-          wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg
-          gpg --no-default-keyring --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg --fingerprint
-          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-          sudo apt update
-          sudo apt-get install terraform
-          curl -L "$(curl -s https://api.github.com/repos/tenable/terrascan/releases/latest | grep -o -E "https://.+?_Darwin_x86_64.tar.gz")" > terrascan.tar.gz
-          tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz
-          install terrascan /usr/local/bin && rm terrascan
+      - name: Install and Setup Terraform
+        uses: hashicorp/setup-terraform@v2
 
-          wget -O https://go.dev/dl/go1.21.3.linux-amd64.tar.gz
-          rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.21.3.linux-amd64.tar.gz
-          export PATH=$PATH:/usr/local/go/bin
+      - name: Install Terrascan binaries
+        run: |
+          curl -L "$(curl -s https://api.github.com/repos/tenable/terrascan/releases/latest | grep -o -E "https://.+?_Linux_x86_64.tar.gz")" > terrascan.tar.gz
+          tar -xf terrascan.tar.gz terrascan && rm terrascan.tar.gz
+          sudo install terrascan /usr/local/bin && rm terrascan
 
       - name: Lint Terraform code
         run: |
           cd setup
+          echo Running Initialization Of Terraform
           terraform init
+          echo Running Format script for Terraform
           terraform fmt -check -recursive .
+          echo Running validation of Terraform
           terraform validate
                 
       - name: Perform security vulnerability scan
         run: |
-          terrascan scan --severity high
-          a=$(echo $?)
-          if [[ $a == 4 ]]; then echo "passed"; else echo "failed"; fi
-      
-      - name: Run tests
-        run: |
-          cd ../tests
-          go mod download
-          CGO_ENABLED=0 go build
-          go test
+          cd setup
+          terrascan scan --iac-type terraform --severity high
       
       - name: Extract Environment from Branch Name
         shell: bash
-        run: echo "environment=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
-        id: extract_environment
-
-      - name: Deploy terraform code
         run: |
-          export TF_VAR‍_environment=${{ steps.extract_environment.outputs.environment }}
-          echo About to provision resources on $TF_VAR‍_environment environment
+          echo "environment=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
+        id: extract_environment
+      
+      - name: Setup Go 1.21.x
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21.x'
+
+      - name: Install golang dependencies
+        run: |
+          cd test
+          go get .
+
+      - name: Run IAC tests
+        env:
+          TF_VAR‍_environment: "${{ steps.extract_environment.outputs.environment }}"
+
+        run: |
+          cd test
+          go build -v ./...
+          go test
+
+      - name: Deploy Resources
+        run: |
+          echo About to provision resources on ${{ steps.extract_environment.outputs.environment }} environment
           echo #################################################################
           echo Preview Resources to be Deployed
           echo #################################################################
+          cd setup
           terraform plan
           echo #################################################################
           echo Start Deployment
           echo #################################################################
-          cd ../setup; terraform apply -auto-approve
+          terraform apply -auto-approve
           
 
           
