@@ -73,6 +73,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          cd test
           go get .
 
       - name: Run tests
