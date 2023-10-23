@@ -3,14 +3,14 @@ run-name: ${{ github.actor }} is running Workflow
 on:
   push:
     branches:
-      - development
-      - uat
+      - dev
+      - staging
       - production
   pull_request:
     branches:
-      - development
-      - uat
-      - production
+      - dev
+      - staging
+      - prod
 
 env:
   AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
