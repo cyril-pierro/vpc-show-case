@@ -36,7 +36,7 @@ jobs:
           # echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
           # sudo apt update && sudo apt install terraform 
 
-          wget https://go.dev/dl/go1.21.3.linux-amd64.tar.gz
+          wget https://go.dev/dl/go1.21.3.src.tar.gz
           rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.21.3.linux-amd64.tar.gz
           export PATH=$PATH:/usr/local/go/bin
           go version
