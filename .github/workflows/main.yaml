@@ -11,10 +11,11 @@ on:
       - development
       - uat
       - production
-# env:
-#   AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-#   AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-#   AWS_DEFAULT_REGION: "${{ secrets.AWS_DEFAULT_REGION }}"
+
+env:
+  AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
+  AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+  AWS_DEFAULT_REGION: "${{ secrets.AWS_DEFAULT_REGION }}"
 
 jobs:
   run_validation_and_deploy:
@@ -67,16 +68,10 @@ jobs:
       - name: Run tests
         env:
           TF_VAR‍_environment: "${{ steps.extract_environment.outputs.environment }}"
-          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          AWS_DEFAULT_REGION: "${{ secrets.AWS_DEFAULT_REGION }}"
 
         run: |
-          echo $AWS_ACCESS_KEY_ID
-          echo $AWS_SECRET_ACCESS_KEY
-          echo $AWS_DEFAULT_REGION
-          echo $TF_VAR‍_environment
-          # echo ${{ steps.extract_environment.outputs.environment }}
+          echo ${{ env.TF_VAR‍_environment }}
+          env
           # cd test
           # go mod download
           # CGO_ENABLED=0 go build
