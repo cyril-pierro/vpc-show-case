@@ -74,8 +74,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd test
-          go get github.com/gruntwork-io/terratest
-          go get github.com/stretchr/testify
+          go get .
 
       - name: Run tests
         env:
