@@ -1,6 +1,6 @@
 module github.com/cyril-pierro/show_cash
 
-go 1.21.3
+go 1.21.0
 
 require (
 	cloud.google.com/go v0.105.0 // indirect
