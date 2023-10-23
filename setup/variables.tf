@@ -23,5 +23,5 @@ variable "enable_dns_support" {
 
 variable "environment" {
   type    = string
-  default = "production"
+  default = "prod"
 }
