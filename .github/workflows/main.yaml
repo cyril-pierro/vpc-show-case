@@ -3,14 +3,14 @@ run-name: ${{ github.actor }} is running Workflow
 on:
   push:
     branches:
-      - development
+      - dev
       - staging
-      - production
+      - prod
   pull_request:
     branches:
-      - development
+      - dev
       - staging
-      - production
+      - prod
 
 jobs:
   run_validation_and_deploy:
