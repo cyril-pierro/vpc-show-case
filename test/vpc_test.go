@@ -24,10 +24,6 @@ func TestTerraformVPCProvisioning(t *testing.T) {
 	assert.Equal(t, "default", output)
 
 	output = terraform.Output(t, terraformOptions, "tags_all")
-	fmt.Printf(output)
-	assert.Equal(t, "main-vpc-main", output)
-
-	output = terraform.Output(t, terraformOptions, "tags_all")
 	assert.Equal(t, value, output)
 
 }
